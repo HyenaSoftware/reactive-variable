@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reactive_framework", "reactive_framework\reactive_framework.vcxproj", "{AE523A62-830C-44FE-A987-63FAE2937C76}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "reactive_framework_unittest", "reactive_framework_unittest\reactive_framework_unittest.vcxproj", "{188BCE31-D527-49DA-8DAA-39F50E3DD1A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -15,6 +17,10 @@ Global
 		{AE523A62-830C-44FE-A987-63FAE2937C76}.Debug|Win32.Build.0 = Debug|Win32
 		{AE523A62-830C-44FE-A987-63FAE2937C76}.Release|Win32.ActiveCfg = Release|Win32
 		{AE523A62-830C-44FE-A987-63FAE2937C76}.Release|Win32.Build.0 = Release|Win32
+		{188BCE31-D527-49DA-8DAA-39F50E3DD1A5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{188BCE31-D527-49DA-8DAA-39F50E3DD1A5}.Debug|Win32.Build.0 = Debug|Win32
+		{188BCE31-D527-49DA-8DAA-39F50E3DD1A5}.Release|Win32.ActiveCfg = Release|Win32
+		{188BCE31-D527-49DA-8DAA-39F50E3DD1A5}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
