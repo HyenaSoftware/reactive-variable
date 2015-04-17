@@ -36,7 +36,7 @@ namespace reactive_framework
 		value_holder(const value_holder&) = default;
 
 		value_holder& operator=(const value_holder&) = default;
-		value_holder& operator=(T t_) override
+		value_holder& operator=(result_type t_) override
 		{
 			std::swap(_value, t_);
 
@@ -430,7 +430,7 @@ namespace reactive_framework
 	//
 	//	merge
 	//
-	template<class T, class I, class TRAIT = merge_trait<rv<T, I>>> auto merge(std::initializer_list<std::reference_wrapper<rv<T, I>>> rv_list_)
+	template<class T, class I> auto merge(std::initializer_list<std::reference_wrapper<rv<T, I>>> rv_list_)
 	{
 		auto it_first = rv_list_.begin();
 
@@ -443,17 +443,14 @@ namespace reactive_framework
 		return builder.merge_with(it_first, rv_list_.end());
 	}
 
-	template<
-		class... Ts, class... Is,
-		class TRAIT = merge_trait<typename Utility::first_of<Ts...>::type, typename Utility::first_of<Is...>::type
-	>>
-		auto merge(rv<Ts, Is>&... rvs_)
+	template<class... Ts, class... Is> auto merge(rv<Ts, Is>&... rvs_)
 	{
 		typedef Utility::first_of<Ts...>::type T1;
 		typedef Utility::first_of<Is...>::type I1;
 
-		// rv_builder{rv1}.merge_with(rvs_...)
-		return merge<T1, I1, TRAIT>({std::ref(rvs_)...});
+		static_assert(Utility::is_same_as_all_of<T1, Ts...>::value, "All Ts... must be the same");
+
+		return merge<T1, I1>({std::ref(rvs_)...});
 	}
 
 }
