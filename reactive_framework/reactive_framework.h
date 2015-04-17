@@ -6,13 +6,13 @@
 #include <sstream>
 #include <typeindex>
 #include <tuple>
+#include <unordered_set>
 #include <vector>
-#include <Event.h>
+
 #include <Utility\meta.h>
 #include <Utility\exception.hpp>
 #include <Utility\traits.h>
 #include <Utility\hash.h>
-#include <unordered_set>
 
 namespace reactive_framework
 {
