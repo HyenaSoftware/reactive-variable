@@ -13,3 +13,22 @@ Okay, so what it does?
  * ...
 
 Example
+```
+#include <reactive_framework.h>
+
+using namespace reactive_framework;
+
+void main()
+{
+  rv<int> a;
+  
+  rv<int> b = map(a, [](int n_)
+  {
+     return n_*2;
+  }).build();
+  
+  a = 3;
+  
+  assert(b == 6);
+}
+```
