@@ -10,9 +10,7 @@
 #include <vector>
 
 #include <Utility\meta.h>
-//#include <Utility\exception.hpp>
 #include <Utility\traits.h>
-//#include <Utility\hash.h>
 
 namespace reactive_framework
 {
@@ -36,7 +34,7 @@ namespace reactive_framework
 		value_holder(const value_holder&) = default;
 
 		value_holder& operator=(const value_holder&) = default;
-		value_holder& operator=(T t_) override
+		value_holder& operator=(result_type t_) override
 		{
 			std::swap(_value, t_);
 
@@ -53,12 +51,12 @@ namespace reactive_framework
 	};
 
 	// forward declaration
-	template<class T, class TRAIT = void> class rv_builder;
+	template<class T> class rv_builder;
 
 
 	template<class T, class I = std::string> class rv
 	{
-		template<class, class> friend class rv_builder;
+		template<class> friend class rv_builder;
 	public:
 		typedef T value_type;
 		typedef I id_type;
@@ -137,64 +135,9 @@ namespace reactive_framework
 	};
 
 
-	template<class T> struct is_trait : std::false_type{};
-
 	// rv basic trait
 	template<class T> struct is_rv : std::false_type{};
 	template<class T, class I> struct is_rv<rv<T, I>> : std::true_type{};
-
-	// rv factory trait
-	struct rv_factory_trait
-	{
-	};
-
-	// traits for merge
-	template<class T, class I> struct merge_trait
-	{
-		//static_assert(is_rv<RV>::value, "Type RV must be like rv<?>.");
-
-		typedef rv<T, I>	rv_type;
-
-		typedef rv_type		rv_input_type;
-
-		typedef typename rv_type::value_type	output_arg_type;
-		typedef std::vector<output_arg_type>	output_container_type;
-		typedef rv<output_container_type>		rv_output_type;
-	};
-
-	// traits for join
-	template<class... Ts> struct join_trait
-	{
-		typedef std::tuple<Ts...> input_type;
-
-		//typedef R output_type;
-		typedef input_type output_type;
-
-		template<class... Ts> struct type_of_output_value
-		{
-			typedef	std::tuple<Ts...> type;
-		};
-
-		// move to rv_join_builder
-		struct joiner_functor
-		{
-			output_type operator()(Ts... ts_) const
-			{
-				return output_type{std::forward<Ts>(ts_)...};
-			}
-		};
-	};
-
-	template<class... Ts> struct is_trait<join_trait<Ts...>> : std::true_type{};
-
-
-	// trait for flatten
-	template<class T> struct flatten_trait;
-	template<class T> struct flatten_trait<std::vector<T>>
-	{
-		typedef std::vector<T> source_type;
-		typedef T component_type;
-	};
 
 
 	namespace detail
@@ -274,11 +217,9 @@ namespace reactive_framework
 	// builder for rvs
 	//	template parameters:
 	//		S: status
-	template<class T, class TRAIT > class rv_builder
+	template<class T> class rv_builder
 	{
 	public:
-		typedef TRAIT trait_type;
-
 		rv_builder(std::shared_ptr<typed_behaviour<T>> behaviour_)
 		{
 			std::swap(_rv_core, behaviour_);
@@ -289,7 +230,7 @@ namespace reactive_framework
 			_rv_core = rv_._behaviour;
 		}
 
-		template<class T, class TRAIT = flatten_trait<T>> rv_builder<TRAIT> flatten(rv<T>&)
+		template<class T> rv_builder<T> flatten(rv<T>&)
 		{
 			return rv_builder<T> {_rv_core};
 		}
@@ -337,7 +278,7 @@ namespace reactive_framework
 		{
 			typedef Utility::seq_builder<sizeof...(Us)>::type seq_type;
 
-			typedef rv_builder<T, TRAIT> this_class;
+			typedef rv_builder<T> this_class;
 			typedef rv_builder<std::tuple<T, Us...>>(this_class::*PtrJoinWith)(rv<Us, Js>&...) const;
 
 			PtrJoinWith ptr = &this_class::join_with;
@@ -430,7 +371,7 @@ namespace reactive_framework
 	//
 	//	merge
 	//
-	template<class T, class I, class TRAIT = merge_trait<rv<T, I>>> auto merge(std::initializer_list<std::reference_wrapper<rv<T, I>>> rv_list_)
+	template<class T, class I> auto merge(std::initializer_list<std::reference_wrapper<rv<T, I>>> rv_list_)
 	{
 		auto it_first = rv_list_.begin();
 
@@ -443,17 +384,14 @@ namespace reactive_framework
 		return builder.merge_with(it_first, rv_list_.end());
 	}
 
-	template<
-		class... Ts, class... Is,
-		class TRAIT = merge_trait<typename Utility::first_of<Ts...>::type, typename Utility::first_of<Is...>::type
-	>>
-		auto merge(rv<Ts, Is>&... rvs_)
+	template<class... Ts, class... Is> auto merge(rv<Ts, Is>&... rvs_)
 	{
 		typedef Utility::first_of<Ts...>::type T1;
 		typedef Utility::first_of<Is...>::type I1;
 
-		// rv_builder{rv1}.merge_with(rvs_...)
-		return merge<T1, I1, TRAIT>({std::ref(rvs_)...});
+		static_assert(Utility::is_same_as_all_of<T1, Ts...>::value, "All Ts... must be the same");
+
+		return merge<T1, I1>({std::ref(rvs_)...});
 	}
 
 }
